@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Para Nadia - Feliz Día del Músico ♥</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Great+Vibes&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        :root {
+            --bg-cream: #faf6f5;
+            --wine-primary: #9e1b32;
+            --wine-dark: #781224;
+            --rose-soft: #f4d6dc;
+            --rose-envelope: #f7dfe4;
+            --rose-flap: #edd0d6;
+            --gold-accent: #d4af37;
+            --text-dark: #4a3b3e;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, #fffdfb 0%, #f5ecea 100%);
+            font-family: 'Cormorant Garamond', serif;
+            color: var(--text-dark);
+            overflow: hidden;
+        }
+
+        /* Fuentes personalizadas */
+        .font-script {
+            font-family: 'Great Vibes', 'Alex Brush', cursive;
+        }
+
+        .font-serif-elegant {
+            font-family: 'Cormorant Garamond', serif;
+        }
+
+        .font-sans-clean {
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        /* Lienzo de partículas flotantes y confeti */
+        #bg-canvas, #confetti-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        #bg-canvas {
+            z-index: 1;
+        }
+
+        #confetti-canvas {
+            z-index: 50;
+        }
+
+        /* Contenedor principal de pantallas */
+        .stage {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            z-index: 10;
+            transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .stage.hidden-stage {
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(0.96) translateY(10px);
+        }
+
+        .stage.active-stage {
+            opacity: 1;
+            pointer-events: auto;
+            transform: scale(1) translateY(0);
+        }
+
+        /* --- PASO 1: ESCÁNER BIOMÉTRICO NEUMÓRFICO --- */
+        .scanner-wrapper {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border-radius: 50%;
+            background: linear-gradient(145deg, #ffffff, #ece6e5);
+            box-shadow: 
+                12px 12px 24px rgba(189, 174, 172, 0.45),
+                -12px -12px 24px rgba(255, 255, 255, 0.95),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        .scanner-wrapper:active, .scanner-wrapper.scanning {
+            transform: scale(0.96);
+            box-shadow: 
+                6px 6px 14px rgba(189, 174, 172, 0.4),
+                -6px -6px 14px rgba(255, 255, 255, 0.9),
+                inset 4px 4px 10px rgba(189, 174, 172, 0.25);
+        }
+
+        .progress-ring {
+            position: absolute;
+            top: -8px;
+            left: -8px;
+            width: 166px;
+            height: 166px;
+            transform: rotate(-90deg);
+            pointer-events: none;
+        }
+
+        .progress-ring__circle {
+            stroke: var(--wine-primary);
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.05s linear;
+            filter: drop-shadow(0 0 4px rgba(158, 27, 50, 0.35));
+        }
+
+        /* Huella dactilar SVG */
+        .fingerprint-svg {
+            width: 76px;
+            height: 76px;
+            fill: none;
+            stroke: #d88c9a;
+            stroke-width: 2.2;
+            stroke-linecap: round;
+            transition: stroke 0.3s ease, filter 0.3s ease;
+        }
+
+        .scanner-wrapper.scanning .fingerprint-svg {
+            stroke: var(--wine-primary);
+            filter: drop-shadow(0 0 6px rgba(158, 27, 50, 0.3));
+        }
+
+        /* Línea láser de escaneo */
+        .laser-line {
+            position: absolute;
+            left: 22px;
+            right: 22px;
+            height: 2.5px;
+            background: linear-gradient(90deg, transparent, var(--wine-primary), #ff4d6d, var(--wine-primary), transparent);
+            box-shadow: 0 0 10px 2px rgba(158, 27, 50, 0.55);
+            border-radius: 999px;
+            top: 25%;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .scanner-wrapper.scanning .laser-line {
+            opacity: 1;
+            animation: scanMove 1.4s ease-in-out infinite alternate;
+        }
+
+        @keyframes scanMove {
+            0% { top: 22%; }
+            100% { top: 76%; }
+        }
+
+        /* --- PASO 2: SOBRE INTERACTIVO 3D --- */
+        .envelope-container {
+            position: relative;
+            width: 290px;
+            height: 195px;
+            cursor: pointer;
+            perspective: 1000px;
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            animation: floatEnvelope 3.5s ease-in-out infinite;
+        }
+
+        @media (min-width: 640px) {
+            .envelope-container {
+                width: 330px;
+                height: 220px;
+            }
+        }
+
+        .envelope-container:hover {
+            transform: translateY(-6px) scale(1.02);
+        }
+
+        @keyframes floatEnvelope {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-7px); }
+        }
+
+        .envelope-body {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(160deg, #fae8ec 0%, #f3d4db 100%);
+            border-radius: 10px;
+            box-shadow: 
+                0 18px 38px rgba(145, 92, 102, 0.22),
+                0 5px 12px rgba(145, 92, 102, 0.12),
+                inset 0 1px 1px rgba(255, 255, 255, 0.8);
+            overflow: hidden;
+        }
+
+        /* Pliegues del sobre */
+        .envelope-left {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, #f7dfe4 0%, #efd0d7 100%);
+            clip-path: polygon(0 0, 52% 52%, 0 100%);
+            z-index: 2;
+        }
+
+        .envelope-right {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(225deg, #f7dfe4 0%, #edd0d6 100%);
+            clip-path: polygon(100% 0, 48% 52%, 100% 100%);
+            z-index: 2;
+        }
+
+        .envelope-bottom {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(0deg, #ebd0d6 0%, #f6e2e6 100%);
+            clip-path: polygon(0 100%, 50% 47%, 100% 100%);
+            z-index: 3;
+            filter: drop-shadow(0 -2px 4px rgba(158, 27, 50, 0.08));
+        }
+
+        .envelope-top-flap {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 58%;
+            background: linear-gradient(180deg, #fdf3f5 0%, #f2d5dc 100%);
+            clip-path: polygon(0 0, 50% 96%, 100% 0);
+            transform-origin: top center;
+            transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 4;
+            filter: drop-shadow(0 4px 6px rgba(138, 75, 88, 0.16));
+        }
+
+        .envelope-container.open .envelope-top-flap {
+            transform: rotateX(180deg);
+            z-index: 1;
+        }
+
+        /* Sello de corazón musical en el centro del sobre */
+        .wax-seal {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -42%);
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #c93b55, var(--wine-primary) 70%, var(--wine-dark));
+            box-shadow: 
+                0 4px 10px rgba(120, 18, 36, 0.4),
+                inset 0 2px 3px rgba(255, 255, 255, 0.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 5;
+            transition: transform 0.4s ease, opacity 0.4s ease;
+        }
+
+        .envelope-container:hover .wax-seal {
+            transform: translate(-50%, -42%) scale(1.08);
+        }
+
+        .envelope-container.open .wax-seal {
+            opacity: 0;
+            transform: translate(-50%, -42%) scale(0.5);
+        }
+
+        /* --- PASO 3: CARTA ABIERTA --- */
+        .letter-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(250, 246, 245, 0.65);
+            backdrop-filter: blur(4px);
+            z-index: 30;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.6s ease;
+        }
+
+        .letter-backdrop.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .letter-paper {
+            position: relative;
+            width: 100%;
+            max-width: 440px;
+            max-height: 86vh;
+            overflow-y: auto;
+            background: linear-gradient(180deg, #fffefd 0%, #fcf8f7 100%);
+            border-radius: 14px;
+            padding: 2.25rem 1.85rem 2rem;
+            box-shadow: 
+                0 25px 50px -12px rgba(120, 45, 58, 0.22),
+                0 0 0 1px rgba(212, 175, 55, 0.25),
+                inset 0 0 30px rgba(244, 214, 220, 0.22);
+            transform: translateY(35px) scale(0.92);
+            transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .letter-backdrop.visible .letter-paper {
+            transform: translateY(0) scale(1);
+        }
+
+        /* Textura sutil de líneas de pentagrama decorativo en la carta */
+        .staff-divider {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin: 0.75rem 0 1.25rem;
+            opacity: 0.55;
+        }
+
+        .staff-line {
+            height: 1px;
+            flex: 1;
+            background: linear-gradient(90deg, transparent, var(--wine-primary), transparent);
+        }
+
+        /* Galería de dos fotos estilo Polaroid romántico dentro de la carta */
+        .polaroid-gallery {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.85rem;
+            margin: 1.5rem 0 1.25rem;
+            padding: 0.25rem;
+        }
+
+        .polaroid-card {
+            background: #ffffff;
+            padding: 0.45rem 0.45rem 1.35rem;
+            border-radius: 6px;
+            border: 1px solid rgba(212, 175, 55, 0.28);
+            box-shadow: 
+                0 8px 18px rgba(120, 45, 58, 0.12),
+                0 2px 5px rgba(120, 45, 58, 0.08);
+            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.35s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .polaroid-card:nth-child(1) {
+            transform: rotate(-2.2deg);
+        }
+
+        .polaroid-card:nth-child(2) {
+            transform: rotate(2.2deg);
+        }
+
+        .polaroid-card:hover,
+        .polaroid-card:active {
+            transform: rotate(0deg) scale(1.05) translateY(-3px);
+            box-shadow: 
+                0 14px 26px rgba(158, 27, 50, 0.2),
+                0 4px 10px rgba(158, 27, 50, 0.12);
+            z-index: 5;
+        }
+
+        .polaroid-img-wrapper {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            overflow: hidden;
+            border-radius: 3px;
+            background: #faf2f4;
+            position: relative;
+        }
+
+        .polaroid-img-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.45s ease;
+        }
+
+        .polaroid-card:hover .polaroid-img-wrapper img {
+            transform: scale(1.06);
+        }
+
+        .polaroid-caption {
+            position: absolute;
+            bottom: 0.25rem;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-family: 'Great Vibes', cursive;
+            font-size: 1.05rem;
+            color: var(--wine-primary);
+            opacity: 0.85;
+            pointer-events: none;
+        }
+
+        /* Teclas de mini piano interactivo al pie de la carta */
+        .mini-piano {
+            display: flex;
+            justify-content: center;
+            gap: 4px;
+            margin-top: 1.25rem;
+            padding-top: 0.9rem;
+            border-top: 1px dashed rgba(158, 27, 50, 0.18);
+        }
+
+        .piano-key {
+            width: 30px;
+            height: 46px;
+            background: linear-gradient(180deg, #ffffff 0%, #f5ecee 100%);
+            border: 1px solid rgba(158, 27, 50, 0.22);
+            border-radius: 0 0 6px 6px;
+            box-shadow: 0 3px 5px rgba(158, 27, 50, 0.1);
+            cursor: pointer;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding-bottom: 4px;
+            font-size: 9px;
+            color: var(--wine-primary);
+            font-family: 'Montserrat', sans-serif;
+            transition: transform 0.1s ease, background 0.15s ease, box-shadow 0.1s ease;
+        }
+
+        .piano-key:active, .piano-key.pressed {
+            transform: translateY(2px);
+            background: linear-gradient(180deg, #fae6ea 0%, #f2cfd6 100%);
+            box-shadow: 0 1px 2px rgba(158, 27, 50, 0.15);
+        }
+
+        /* Botón flotante de control de sonido */
+        .sound-control {
+            position: fixed;
+            bottom: 18px;
+            right: 18px;
+            z-index: 60;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(158, 27, 50, 0.2);
+            color: var(--wine-primary);
+            border-radius: 999px;
+            padding: 8px 14px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 4px 15px rgba(158, 27, 50, 0.12);
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .sound-control:hover {
+            background: #ffffff;
+            transform: translateY(-2px);
+        }
+
+        /* Scrollbar sutil en la carta */
+        .letter-paper::-webkit-scrollbar {
+            width: 4px;
+        }
+        .letter-paper::-webkit-scrollbar-thumb {
+            background: rgba(158, 27, 50, 0.25);
+            border-radius: 999px;
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="bg-canvas"></canvas>
+
+    <canvas id="confetti-canvas"></canvas>
+
+    <section id="stage-scanner" class="stage active-stage">
+        <div class="text-center max-w-md mx-auto flex flex-col items-center">
+            <h1 class="font-script text-9xl sm:text-5xl mb-6 tracking-wide drop-shadow-sm" style="color: var(--wine-primary);">
+                Para Nadia - Te Amo
+            </h1>
+
+            <div id="scanner-btn" class="scanner-wrapper mb-8" role="button" aria-label="Mantén presionada tu huella para desbloquear">
+                <svg class="progress-ring" viewBox="0 0 166 166">
+                    <circle
+                        stroke="rgba(158, 27, 50, 0.1)"
+                        stroke-width="3.5"
+                        fill="transparent"
+                        r="78"
+                        cx="83"
+                        cy="83"
+                    />
+                    <circle
+                        id="progress-circle"
+                        class="progress-ring__circle"
+                        stroke-width="3.5"
+                        fill="transparent"
+                        r="78"
+                        cx="83"
+                        cy="83"
+                    />
+                </svg>
+
+                <div class="laser-line"></div>
+
+                <svg class="fingerprint-svg" viewBox="0 0 24 24">
+                    <path d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4" />
+                </svg>
+            </div>
+
+            <p id="scanner-status" class="font-serif-elegant italic text-base sm:text-lg text-stone-500 transition-all duration-300">
+                Mantén presionada tu huella para desbloquear...
+            </p>
+            <span class="font-sans-clean text-[10px] uppercase tracking-[0.22em] text-rose-400/80 mt-2">
+                Felíz día del Músico!
+            </span>
+        </div>
+    </section>
+
+    <section id="stage-envelope" class="stage hidden-stage">
+        <div class="text-center max-w-lg mx-auto flex flex-col items-center">
+            <h2 class="font-script text-5xl sm:text-6xl mb-2 leading-tight" style="color: var(--wine-primary);">
+                Feliz Día del Músico
+            </h2>
+
+            <p class="font-sans-clean text-[11px] sm:text-xs tracking-[0.28em] uppercase text-stone-500 mb-10 font-medium">
+                22 DE NOVIEMBRE • TU ERES MI MELODÍA FAVORITA
+            </p>
+
+            <div id="envelope-btn" class="envelope-container mb-8" role="button" aria-label="Toca el sobre para abrir tu sorpresa">
+                <div class="envelope-body">
+                    <div class="envelope-left"></div>
+                    <div class="envelope-right"></div>
+                    <div class="envelope-bottom"></div>
+                    <div class="envelope-top-flap"></div>
+                </div>
+                
+                <div class="wax-seal">
+                    <svg class="w-5 h-5 text-rose-50 fill-current" viewBox="0 0 24 24">
+                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                    </svg>
+                </div>
+            </div>
+
+            <p class="font-serif-elegant italic text-base sm:text-lg text-stone-500 animate-pulse">
+                Toca el sobre para abrir tu sorpresa
+            </p>
+        </div>
+    </section>
+
+    <div id="letter-modal" class="letter-backdrop">
+        <article class="letter-paper">
+            <button id="close-letter-btn" class="absolute top-3.5 right-3.5 w-7 h-7 rounded-full border border-stone-200 flex items-center justify-center text-stone-400 hover:text-rose-800 hover:border-rose-300 transition-colors" aria-label="Cerrar carta">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+
+            <div class="text-center">
+                <span class="inline-block text-xs tracking-[0.25em] uppercase font-sans-clean text-rose-400 mb-1">
+                    Para la artista de mi vida
+                </span>
+                <h3 class="font-script text-4xl sm:text-5xl" style="color: var(--wine-primary);">
+                    Santiaguito,
+                </h3>
+                
+                <div class="staff-divider">
+                    <span class="staff-line"></span>
+                    <span class="text-rose-700 text-sm">𝄞</span>
+                    <span class="staff-line"></span>
+                </div>
+            </div>
+
+            <div class="space-y-4 text-[16.5px] sm:text-[17.5px] leading-relaxed text-stone-700 font-serif-elegant text-justify">
+                <p>
+                    Hoy, en el <strong class="font-semibold text-rose-900">Día del Músico</strong>, quiero felicitar no solo tu inmenso talento y dedicación, sino la magia tan especial con la que transformas el mundo cada vez que haces música.
+                </p>
+                <p>
+                    Admiro la pasión que pones en cada nota, tu sensibilidad para expresar lo que las palabras no alcanzan a decir y esa luz única que brilla en ti cuando te entregas a lo que amas.
+                </p>
+                <p>
+                    De todas las melodías que existen en el universo, tú siempre serás mi canción favorita, el acorde que le da armonía a mis días y el ritmo más bonito de mi corazón.
+                </p>
+            </div>
+
+            <div class="polaroid-gallery">
+                <figure class="polaroid-card" onclick="musicEngine.playNote(523.25, 0.9, 0.08)">
+                    <div class="polaroid-img-wrapper">
+                        <img 
+                            src="foto1.jpg" 
+                            alt="Recuerdo especial 1" 
+                            onerror="this.onerror=null; this.src='1.jpeg';"
+                        >
+                    </div>
+                    <figcaption class="polaroid-caption">Tu magia ♪</figcaption>
+                </figure>
+
+                <figure class="polaroid-card" onclick="musicEngine.playNote(659.25, 0.9, 0.08)">
+                    <div class="polaroid-img-wrapper">
+                        <img 
+                            src="foto2.jpg" 
+                            alt="Recuerdo especial 2" 
+                            onerror="this.onerror=null; this.src='2.jpeg';"
+                        >
+                    </div>
+                    <figcaption class="polaroid-caption">Mi melodía ♥</figcaption>
+                </figure>
+            </div>
+
+            <div class="mt-7 text-right">
+                <p class="font-script text-3xl sm:text-4xl inline-flex items-center gap-1.5" style="color: var(--wine-primary);">
+                    Nadia, tqm <span>♥</span> <span class="text-xl">♪</span>
+                </p>
+            </div>
+
+            <div class="mini-piano" title="Toca las notas para crear tu propia melodía">
+                <button class="piano-key" data-note="261.63">Do</button>
+                <button class="piano-key" data-note="293.66">Re</button>
+                <button class="piano-key" data-note="329.63">Mi</button>
+                <button class="piano-key" data-note="349.23">Fa</button>
+                <button class="piano-key" data-note="392.00">Sol</button>
+                <button class="piano-key" data-note="440.00">La</button>
+                <button class="piano-key" data-note="493.88">Si</button>
+                <button class="piano-key" data-note="523.25">Do'</button>
+            </div>
+        </article>
+    </div>
+
+    <button id="audio-toggle" class="sound-control font-sans-clean" aria-label="Control de música ambiental">
+        <span id="audio-icon">🎵</span>
+        <span id="audio-label">Melodía: Activada</span>
+    </button>
+
+    <script>
+        class RomanticMusicEngine {
+            constructor() {
+                this.ctx = null;
+                this.isMuted = false;
+                this.isPlayingBg = false;
+                this.bgInterval = null;
+                this.step = 0;
+
+                this.melodyNotes = [
+                    349.23, 440.00, 523.25, 659.25, // Fmaj7
+                    329.63, 392.00, 493.88, 587.33, // Em7
+                    293.66, 349.23, 440.00, 523.25, // Dm7
+                    261.63, 392.00, 493.88, 523.25  // Cmaj7
+                ];
+            }
+
+            init() {
+                if (!this.ctx) {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    this.ctx = new AudioContext();
+                }
+                if (this.ctx.state === 'suspended') {
+                    this.ctx.resume();
+                }
+            }
+
+            playNote(freq, duration = 1.4, volume = 0.08, type = 'sine') {
+                if (this.isMuted) return;
+                this.init();
+
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const overtone = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                const overtoneGain = this.ctx.createGain();
+
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, now);
+
+                overtone.type = 'triangle';
+                overtone.frequency.setValueAtTime(freq * 2, now);
+
+                gain.gain.setValueAtTime(0.0001, now);
+                gain.gain.exponentialRampToValueAtTime(volume, now + 0.04);
+                gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+                overtoneGain.gain.setValueAtTime(0.0001, now);
+                overtoneGain.gain.exponentialRampToValueAtTime(volume * 0.25, now + 0.03);
+                overtoneGain.gain.exponentialRampToValueAtTime(0.0001, now + duration * 0.6);
+
+                osc.connect(gain);
+                overtone.connect(overtoneGain);
+                gain.connect(this.ctx.destination);
+                overtoneGain.connect(this.ctx.destination);
+
+                osc.start(now);
+                overtone.start(now);
+                osc.stop(now + duration);
+                overtone.stop(now + duration);
+            }
+
+            playScanChime(progressRatio) {
+                // Sube suavemente el tono conforme avanza el escaneo
+                const baseFreq = 330 + (progressRatio * 330);
+                this.playNote(baseFreq, 0.35, 0.045, 'sine');
+            }
+
+            playUnlockChord() {
+                // Acorde arpegiado mágico al completar la huella
+                const chord = [523.25, 659.25, 783.99, 1046.50];
+                chord.forEach((freq, idx) => {
+                    setTimeout(() => this.playNote(freq, 1.8, 0.09, 'sine'), idx * 95);
+                });
+            }
+
+            startAmbientLoop() {
+                if (this.isPlayingBg) return;
+                this.isPlayingBg = true;
+                this.bgInterval = setInterval(() => {
+                    if (!this.isMuted && this.isPlayingBg) {
+                        const freq = this.melodyNotes[this.step % this.melodyNotes.length];
+                        this.playNote(freq, 1.6, 0.045, 'sine');
+                        this.step++;
+                    }
+                }, 580);
+            }
+
+            toggleMute() {
+                this.init();
+                this.isMuted = !this.isMuted;
+                return !this.isMuted;
+            }
+        }
+
+        const musicEngine = new RomanticMusicEngine();
+
+        // Control de botón de audio
+        const audioToggleBtn = document.getElementById('audio-toggle');
+        const audioIcon = document.getElementById('audio-icon');
+        const audioLabel = document.getElementById('audio-label');
+
+        audioToggleBtn.addEventListener('click', () => {
+            const isSoundOn = musicEngine.toggleMute();
+            audioIcon.textContent = isSoundOn ? '🎵' : '🔇';
+            audioLabel.textContent = isSoundOn ? 'Melodía: Activada' : 'Melodía: Silenciada';
+        });
+
+        const bgCanvas = document.getElementById('bg-canvas');
+        const bgCtx = bgCanvas.getContext('2d');
+        let bgParticles = [];
+
+        function resizeCanvases() {
+            bgCanvas.width = window.innerWidth;
+            bgCanvas.height = window.innerHeight;
+            confettiCanvas.width = window.innerWidth;
+            confettiCanvas.height = window.innerHeight;
+        }
+
+        class FloatingSymbol {
+            constructor() {
+                this.reset(true);
+            }
+
+            reset(initial = false) {
+                this.x = Math.random() * bgCanvas.width;
+                this.y = initial ? Math.random() * bgCanvas.height : bgCanvas.height + 20;
+                this.size = 11 + Math.random() * 11;
+                this.speedY = 0.25 + Math.random() * 0.45;
+                this.speedX = (Math.random() - 0.5) * 0.35;
+                this.opacity = 0.12 + Math.random() * 0.22;
+                this.rotation = Math.random() * Math.PI * 2;
+                this.rotSpeed = (Math.random() - 0.5) * 0.01;
+                const symbols = ['♪', '♫', '♥', '𝄞', '🌸'];
+                this.symbol = symbols[Math.floor(Math.random() * symbols.length)];
+            }
+
+            update() {
+                this.y -= this.speedY;
+                this.x += Math.sin(this.y * 0.012) * 0.3 + this.speedX;
+                this.rotation += this.rotSpeed;
+
+                if (this.y < -30) {
+                    this.reset(false);
+                }
+            }
+
+            draw(ctx) {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.rotation);
+                ctx.globalAlpha = this.opacity;
+                ctx.font = `${this.size}px serif`;
+                ctx.fillStyle = '#9e1b32';
+                ctx.textAlign = 'center';
+                ctx.fillText(this.symbol, 0, 0);
+                ctx.restore();
+            }
+        }
+
+        function initBgParticles() {
+            bgParticles = [];
+            const count = Math.min(28, Math.floor(window.innerWidth / 25));
+            for (let i = 0; i < count; i++) {
+                bgParticles.push(new FloatingSymbol());
+            }
+        }
+
+        function animateBg() {
+            bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
+            bgParticles.forEach(p => {
+                p.update();
+                p.draw(bgCtx);
+            });
+            requestAnimationFrame(animateBg);
+        }
+
+        const confettiCanvas = document.getElementById('confetti-canvas');
+        const confettiCtx = confettiCanvas.getContext('2d');
+        let confettiPieces = [];
+        let confettiAnimId = null;
+
+        function launchConfetti() {
+            const colors = ['#f4acb7', '#9e1b32', '#ffd166', '#ffcad4', '#e5989b', '#d4af37'];
+            const shapes = ['petal', 'petal', 'note', 'heart'];
+            confettiPieces = [];
+
+            for (let i = 0; i < 95; i++) {
+                const angle = (Math.random() * Math.PI) - Math.PI; // Hacia arriba en abanico
+                const velocity = 6 + Math.random() * 11;
+                confettiPieces.push({
+                    x: confettiCanvas.width / 2 + (Math.random() - 0.5) * 120,
+                    y: confettiCanvas.height * 0.55,
+                    vx: Math.cos(angle) * velocity * (Math.random() > 0.5 ? 1 : -1) * 1.2,
+                    vy: (Math.sin(angle) * velocity) - 3,
+                    gravity: 0.22 + Math.random() * 0.1,
+                    drag: 0.985,
+                    size: 7 + Math.random() * 8,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    shape: shapes[Math.floor(Math.random() * shapes.length)],
+                    rotation: Math.random() * Math.PI * 2,
+                    rotSpeed: (Math.random() - 0.5) * 0.15,
+                    opacity: 1
+                });
+            }
+
+            if (confettiAnimId) cancelAnimationFrame(confettiAnimId);
+            animateConfetti();
+        }
+
+        function animateConfetti() {
+            confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+            let activeCount = 0;
+
+            confettiPieces.forEach(p => {
+                p.vx *= p.drag;
+                p.vy += p.gravity;
+                p.x += p.vx;
+                p.y += p.vy;
+                p.rotation += p.rotSpeed;
+
+                if (p.y > confettiCanvas.height * 0.85) {
+                    p.opacity -= 0.02;
+                }
+
+                if (p.opacity > 0) {
+                    activeCount++;
+                    confettiCtx.save();
+                    confettiCtx.translate(p.x, p.y);
+                    confettiCtx.rotate(p.rotation);
+                    confettiCtx.globalAlpha = Math.max(0, p.opacity);
+                    confettiCtx.fillStyle = p.color;
+
+                    if (p.shape === 'petal') {
+                        confettiCtx.beginPath();
+                        confettiCtx.ellipse(0, 0, p.size * 0.7, p.size * 0.4, 0, 0, Math.PI * 2);
+                        confettiCtx.fill();
+                    } else if (p.shape === 'note') {
+                        confettiCtx.font = `bold ${p.size * 1.6}px serif`;
+                        confettiCtx.fillText('♪', -p.size / 2, p.size / 2);
+                    } else {
+                        confettiCtx.font = `${p.size * 1.4}px serif`;
+                        confettiCtx.fillText('♥', -p.size / 2, p.size / 2);
+                    }
+                    confettiCtx.restore();
+                }
+            });
+
+            if (activeCount > 0) {
+                confettiAnimId = requestAnimationFrame(animateConfetti);
+            } else {
+                confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+            }
+        }
+
+        const scannerBtn = document.getElementById('scanner-btn');
+        const scannerStatus = document.getElementById('scanner-status');
+        const progressCircle = document.getElementById('progress-circle');
+        const stageScanner = document.getElementById('stage-scanner');
+        const stageEnvelope = document.getElementById('stage-envelope');
+
+        const radius = progressCircle.r.baseVal.value;
+        const circumference = radius * 2 * Math.PI;
+        progressCircle.style.strokeDasharray = `${circumference} ${circumference}`;
+        progressCircle.style.strokeDashoffset = circumference;
+
+        let scanProgress = 0;
+        let isScanning = false;
+        let isUnlocked = false;
+        let scanInterval = null;
+        let chimeCounter = 0;
+
+        function setProgress(percent) {
+            const offset = circumference - (percent / 100) * circumference;
+            progressCircle.style.strokeDashoffset = offset;
+        }
+
+        function startScan(e) {
+            if (e) e.preventDefault();
+            if (isUnlocked || isScanning) return;
+
+            musicEngine.init();
+            isScanning = true;
+            scannerBtn.classList.add('scanning');
+            scannerStatus.textContent = 'Escaneando...';
+            scannerStatus.style.color = '#9e1b32';
+
+            clearInterval(scanInterval);
+            scanInterval = setInterval(() => {
+                scanProgress += 2.2;
+                chimeCounter++;
+
+                if (chimeCounter % 6 === 0) {
+                    musicEngine.playScanChime(scanProgress / 100);
+                }
+
+                if (scanProgress >= 100) {
+                    scanProgress = 100;
+                    setProgress(100);
+                    completeScan();
+                } else {
+                    setProgress(scanProgress);
+                }
+            }, 30);
+        }
+
+        function stopScan() {
+            if (isUnlocked || !isScanning) return;
+            isScanning = false;
+            scannerBtn.classList.remove('scanning');
+            clearInterval(scanInterval);
+
+            // Retrocede suavemente si suelta antes de terminar
+            scanInterval = setInterval(() => {
+                scanProgress -= 4;
+                if (scanProgress <= 0) {
+                    scanProgress = 0;
+                    setProgress(0);
+                    scannerStatus.textContent = 'Mantén presionada tu huella para desbloquear...';
+                    scannerStatus.style.color = '';
+                    clearInterval(scanInterval);
+                } else {
+                    setProgress(scanProgress);
+                }
+            }, 25);
+        }
+
+        function completeScan() {
+            isUnlocked = true;
+            isScanning = false;
+            clearInterval(scanInterval);
+            scannerStatus.textContent = '¡Huella verificada! ♥';
+            musicEngine.playUnlockChord();
+            musicEngine.startAmbientLoop();
+
+            setTimeout(() => {
+                stageScanner.classList.remove('active-stage');
+                stageScanner.classList.add('hidden-stage');
+
+                setTimeout(() => {
+                    stageEnvelope.classList.remove('hidden-stage');
+                    stageEnvelope.classList.add('active-stage');
+                }, 400);
+            }, 550);
+        }
+
+        // Eventos táctiles y de ratón para el escáner
+        scannerBtn.addEventListener('mousedown', startScan);
+        scannerBtn.addEventListener('touchstart', startScan, { passive: false });
+        window.addEventListener('mouseup', stopScan);
+        window.addEventListener('touchend', stopScan);
+
+        const envelopeBtn = document.getElementById('envelope-btn');
+        const letterModal = document.getElementById('letter-modal');
+        const closeLetterBtn = document.getElementById('close-letter-btn');
+
+        envelopeBtn.addEventListener('click', () => {
+            musicEngine.init();
+            musicEngine.startAmbientLoop();
+            envelopeBtn.classList.add('open');
+
+            // Acorde suave al abrir el sobre
+            musicEngine.playNote(523.25, 1.2, 0.08);
+            setTimeout(() => musicEngine.playNote(659.25, 1.4, 0.08), 110);
+            setTimeout(() => musicEngine.playNote(783.99, 1.6, 0.08), 220);
+
+            setTimeout(() => {
+                letterModal.classList.add('visible');
+                launchConfetti();
+            }, 480);
+        });
+
+        closeLetterBtn.addEventListener('click', () => {
+            letterModal.classList.remove('visible');
+            setTimeout(() => {
+                envelopeBtn.classList.remove('open');
+            }, 350);
+        });
+
+        // Cerrar carta si toca fuera del papel
+        letterModal.addEventListener('click', (e) => {
+            if (e.target === letterModal) {
+                closeLetterBtn.click();
+            }
+        });
+
+        document.querySelectorAll('.piano-key').forEach(key => {
+            const triggerNote = (e) => {
+                e.preventDefault();
+                const freq = parseFloat(key.dataset.note);
+                musicEngine.playNote(freq, 1.1, 0.12, 'triangle');
+                key.classList.add('pressed');
+                setTimeout(() => key.classList.remove('pressed'), 180);
+            };
+            key.addEventListener('mousedown', triggerNote);
+            key.addEventListener('touchstart', triggerNote, { passive: false });
+        });
+
+        window.addEventListener('resize', () => {
+            resizeCanvases();
+            initBgParticles();
+        });
+
+        window.onload = () => {
+            resizeCanvases();
+            initBgParticles();
+            animateBg();
+        };
+    </script>
+</body>
+</html>
